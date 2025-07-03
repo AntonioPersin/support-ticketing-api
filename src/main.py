@@ -1,13 +1,20 @@
 import logging
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from src.api import tickets, stats
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 import redis.asyncio as redis
-
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+
+# Učitaj varijable iz .env u okolinu
+load_dotenv()
+
+redis_host = os.getenv("REDIS_HOST", "localhost")
+redis_port = int(os.getenv("REDIS_PORT", 6379))
 
 # Postavke logiranja
 logging.basicConfig(
@@ -42,5 +49,5 @@ async def health_check(request: Request):
 
 @app.on_event("startup")
 async def startup():
-    redis_client = redis.Redis(host="localhost", port=6379)
+    redis_client = redis.Redis(host=redis_host, port=redis_port, decode_responses=True)
     FastAPICache.init(RedisBackend(redis_client), prefix="fastapi-cache")
