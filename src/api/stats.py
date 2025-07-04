@@ -6,6 +6,7 @@ from src.utils.ratelimit import rate_limit_decorator
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
 @router.get("/stats")
 @rate_limit_decorator("10/minute")
 async def get_ticket_stats(request: Request = None):

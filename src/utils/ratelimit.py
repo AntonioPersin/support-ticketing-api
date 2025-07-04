@@ -1,6 +1,7 @@
 from fastapi import Request
 from functools import wraps
 
+
 def rate_limit_decorator(limit: str):
     def decorator(func):
         @wraps(func)

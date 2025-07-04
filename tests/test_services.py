@@ -1,6 +1,7 @@
 import pytest
 from src.services.todos import fetch_tickets, fetch_ticket_by_id
 
+
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("initialize_cache")
 async def test_fetch_tickets_returns_list():
@@ -12,6 +13,7 @@ async def test_fetch_tickets_returns_list():
     assert hasattr(first, "title")
     assert hasattr(first, "status")
 
+
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("initialize_cache")
 async def test_fetch_ticket_by_id_valid():
@@ -20,6 +22,7 @@ async def test_fetch_ticket_by_id_valid():
     assert ticket.title
     assert ticket.original
     assert isinstance(ticket.original, dict)
+
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("initialize_cache")

@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 DUMMY_TODOS_URL = "https://dummyjson.com/todos"
 DUMMY_USERS_URL = "https://dummyjson.com/users"
 
+
 @cache(expire=60)
 async def fetch_todos() -> List[dict]:
     logger.info("Fetching todos from external API")
@@ -23,7 +24,10 @@ async def fetch_todos() -> List[dict]:
             return todos
         except httpx.HTTPError as e:
             logger.error(f"Failed to fetch todos: {e}")
-            raise HTTPException(status_code=502, detail="Failed to fetch todos from external service")
+            raise HTTPException(
+                status_code=502,
+                detail="Failed to fetch todos from external service")
+
 
 @cache(expire=60)
 async def fetch_users() -> dict:
@@ -33,18 +37,23 @@ async def fetch_users() -> dict:
             resp = await client.get(DUMMY_USERS_URL)
             resp.raise_for_status()
             data = resp.json()
-            users = {user["id"]: user["username"] for user in data.get("users", [])}
+            users = {user["id"]: user["username"]
+                     for user in data.get("users", [])}
             logger.info(f"Fetched {len(users)} users")
             return users
         except httpx.HTTPError as e:
             logger.error(f"Failed to fetch users: {e}")
-            raise HTTPException(status_code=502, detail="Failed to fetch users from external service")
+            raise HTTPException(
+                status_code=502,
+                detail="Failed to fetch users from external service")
+
 
 def compute_priority(id_: int) -> str:
     priorities = ["low", "medium", "high"]
     priority = priorities[id_ % 3]
     logger.debug(f"Computed priority '{priority}' for id {id_}")
     return priority
+
 
 async def fetch_tickets() -> List[Ticket]:
     todos = await fetch_todos()
@@ -64,6 +73,7 @@ async def fetch_tickets() -> List[Ticket]:
 
     logger.info(f"Constructed {len(tickets)} Ticket objects")
     return tickets
+
 
 @cache(expire=60)
 async def fetch_ticket_by_id(ticket_id: int) -> TicketDetail:
@@ -96,4 +106,6 @@ async def fetch_ticket_by_id(ticket_id: int) -> TicketDetail:
 
         except httpx.HTTPError as e:
             logger.error(f"Error fetching ticket ID {ticket_id}: {e}")
-            raise HTTPException(status_code=502, detail="Failed to fetch ticket from external service")
+            raise HTTPException(
+                status_code=502,
+                detail="Failed to fetch ticket from external service")

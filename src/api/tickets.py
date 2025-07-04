@@ -7,6 +7,7 @@ from src.utils.ratelimit import rate_limit_decorator
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
 @router.get("/")
 @rate_limit_decorator("20/minute")
 async def list_tickets(
@@ -17,21 +18,32 @@ async def list_tickets(
     skip: int = Query(0, ge=0),
     request: Request = None
 ):
-    logger.info(f"GET /tickets called with status={status}, priority={priority}, search={q}, limit={limit}, skip={skip}")
+    logger.info(
+        f"GET /tickets called with status={status}, "
+        f"priority={priority}, search={q}, "
+        f"limit={limit}, skip={skip}"
+    )
     try:
         tickets = await fetch_tickets()
 
         if status:
             tickets = [t for t in tickets if t.status == status]
-            logger.info(f"Filtered tickets by status={status}, count={len(tickets)}")
+            logger.info(
+                f"Filtered tickets by status={status}, count={len(tickets)}")
 
         if priority:
             tickets = [t for t in tickets if t.priority == priority]
-            logger.info(f"Filtered tickets by priority={priority}, count={len(tickets)}")
+            logger.info(
+                f"Filtered tickets by priority={priority}, "
+                f"count={len(tickets)}"
+            )
 
         if q:
             tickets = [t for t in tickets if q.lower() in t.title.lower()]
-            logger.info(f"Filtered tickets by search query='{q}', count={len(tickets)}")
+            logger.info(
+                f"Filtered tickets by search query='{q}', "
+                f"count={len(tickets)}"
+            )
 
         paginated = tickets[skip: skip + limit]
         logger.info(f"Returning {len(paginated)} tickets after pagination")
@@ -41,6 +53,7 @@ async def list_tickets(
     except Exception as e:
         logger.error(f"Error in list_tickets: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 @router.get("/{ticket_id}")
 @rate_limit_decorator("30/minute")
@@ -54,8 +67,12 @@ async def get_ticket(ticket_id: int, request: Request = None):
         if e.status_code == 404:
             logger.warning(f"Ticket with id={ticket_id} not found")
         else:
-            logger.error(f"HTTP error when fetching ticket id={ticket_id}: {e.detail}", exc_info=True)
+            logger.error(
+                f"HTTP error when fetching ticket id={ticket_id}: {e.detail}",
+                exc_info=True)
         raise
     except Exception as e:
-        logger.error(f"Error in get_ticket with id={ticket_id}: {e}", exc_info=True)
+        logger.error(
+            f"Error in get_ticket with id={ticket_id}: {e}",
+            exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")

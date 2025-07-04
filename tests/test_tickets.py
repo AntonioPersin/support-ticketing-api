@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.mark.asyncio
 async def test_list_tickets_content(async_client):
     response = await async_client.get("/tickets/")
@@ -14,6 +15,7 @@ async def test_list_tickets_content(async_client):
         assert "priority" in ticket
         assert "assignee" in ticket
 
+
 @pytest.mark.asyncio
 async def test_get_ticket_detail(async_client):
     response = await async_client.get("/tickets/1")
@@ -27,6 +29,7 @@ async def test_get_ticket_detail(async_client):
     assert "original" in data
     assert isinstance(data["original"], dict)
 
+
 @pytest.mark.asyncio
 async def test_get_ticket_by_id(async_client):
     response = await async_client.get("/tickets/1")
@@ -39,6 +42,7 @@ async def test_get_ticket_by_id(async_client):
     assert "assignee" in data
     assert "original" in data
     assert isinstance(data["original"], dict)
+
 
 @pytest.mark.asyncio
 async def test_get_ticket_not_found(async_client):
