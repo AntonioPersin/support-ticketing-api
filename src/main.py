@@ -9,6 +9,9 @@ import redis.asyncio as redis
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+import pathlib
 
 # Učitaj varijable iz .env u okolinu
 load_dotenv()
@@ -23,6 +26,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Postavi direktorij i datoteku
+BASE_DIR = pathlib.Path(__file__).resolve().parent.parent 
+DOCS_DIR = BASE_DIR / "docs"
+
 app = FastAPI(title="Ticketing API")
 
 # Inicijaliziraj limiter s Redis backendom za rate limiting (koristimo IP adresu)
@@ -34,6 +41,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(tickets.router, prefix="/tickets", tags=["tickets"])
 app.include_router(stats.router, tags=["stats"])
+
+# Montiraj 'docs' direktorij (gdje je HTML)
+app.mount("/docs-static", StaticFiles(directory=DOCS_DIR), name="docs")
 
 @app.get("/")
 @limiter.limit("10/minute")  # Limit root na 10 zahtjeva po minuti (primjer)
@@ -51,3 +61,12 @@ async def health_check(request: Request):
 async def startup():
     redis_client = redis.Redis(host=redis_host, port=redis_port, decode_responses=True)
     FastAPICache.init(RedisBackend(redis_client), prefix="fastapi-cache")
+
+@app.get("/docs.html", include_in_schema=False)
+async def custom_docs():
+    path = DOCS_DIR / "docs.html"
+    logger.info(f"Serving docs from: {path}")
+    with open(path, "r") as f:
+        content = f.read()
+    logger.info(f"Docs content length: {len(content)}")
+    return HTMLResponse(content=content)
