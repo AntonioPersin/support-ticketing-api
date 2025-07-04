@@ -21,7 +21,7 @@ RESTful FastAPI aplikacija za upravljanje "ticketima" s podrškom za pretragu, f
 
 ## 📁 Struktura projekta
 
-.
+```markdown
 ├── src/                       # Izvorni kod aplikacije
 │   ├── api/                   # Endpointi (tickets, stats)
 │   ├── services/              # Logika za dohvat i obradu podataka
@@ -38,7 +38,7 @@ RESTful FastAPI aplikacija za upravljanje "ticketima" s podrškom za pretragu, f
 └── .github/
     └── workflows/
         └── ci.yml             # CI workflow definicija (GitHub Actions)
-
+```
 
 ---
 
